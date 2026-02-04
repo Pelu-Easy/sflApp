@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import useNigeriaSignUp from './bvn_input';
 import Header from './header'; // Import your custom header
 
 export default function LoginScreen() {
@@ -28,7 +29,7 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://inv-backend-1.onrender.com/api/customers/auth/login', {
+      const response = await fetch('https://inv-backend-1.onrender.com/api/auth/v1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
