@@ -1,171 +1,182 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, ScrollView } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from 'expo-router';
-import useUserSignUp from "./userSignUp";
-import RNPickerSelect from 'react-native-picker-select';
-import Header from './header';
+import React, { useState } from 'react';
+import { 
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Alert 
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import useNigeriaSignUp from './bvn_input'; // Adjust path if necessary
 
 export default function ProfileScreen() {
-    // 1. Get Data and Setter from Zustand
-    const { userData, setUserData } = useUserSignUp();
+  const router = useRouter();
+  
+  // Pulling the modern store data and actions
+  const { userNigeriaData, setUserData, clearUserData } = useNigeriaSignUp();
+  
+  // Local state for the "Edit" mode, initialized with store data
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPhone, setEditPhone] = useState(userNigeriaData.phone);
+  const [editEmail, setEditEmail] = useState(userNigeriaData.email);
+
+  const handleSave = () => {
+    // Basic validation
+    if (!editEmail.includes('@')) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    // Update the Zustand store with new values
+    setUserData({ 
+      phone: editPhone, 
+      email: editEmail 
+    });
     
-    // 2. Local State for Editing
-    const [isEditing, setIsEditing] = useState(false);
-    const [editEmail, setEditEmail] = useState(userData.email);
-    const [editPhone, setEditPhone] = useState(userData.phone_no);
-    const [editCountry, setEditCountry] = useState(userData.selectedCountry);
+    setIsEditing(false);
+    Alert.alert("Success", "Profile details updated.");
+  };
 
-    // Sync local state when userData changes (e.g., after initial load)
-    useEffect(() => {
-        setEditEmail(userData.email);
-        setEditPhone(userData.phone_no);
-        setEditCountry(userData.selectedCountry);
-    }, [userData]);
-
-    const countries = [
-        { label: 'Nigeria', value: 'NG' },
-        { label: 'United States', value: 'US' },
-        { label: 'United Kingdom', value: 'UK' },
-        { label: 'Canada', value: 'CA' },
-    ];
-
-    const handleSave = () => {
-        // Update Zustand Store - Passing all 6 required arguments
-        setUserData(
-            userData.fname, 
-            userData.lname, 
-            editEmail, 
-            editPhone.toString(), 
-            editCountry, 
-            userData.password // Keeping the existing password
-        );
-        setIsEditing(false);
-    };
-
-    return (
-        <SafeAreaView style={styles.container}>
-            <Header style={styles.heada} />
-            <ScrollView contentContainerStyle={styles.greetTextDive}>
-                <Text style={styles.greetText}>Profile Details</Text>
-                
-                <View style={styles.infoBox}>
-                    <Text style={styles.label}>First Name: {userData.fname}</Text>
-                    <Text style={styles.label}>Last Name: {userData.lname}</Text>
-
-                    {/* Editable Email */}
-                    <Text style={styles.subLabel}>Email:</Text>
-                    {isEditing ? (
-                        <TextInput 
-                            style={styles.input} 
-                            value={editEmail} 
-                            onChangeText={setEditEmail} 
-                            keyboardType="email-address"
-                        />
-                    ) : (
-                        <Text style={styles.valueText}>{userData.email}</Text>
-                    )}
-
-                    {/* Editable Phone */}
-                    <Text style={styles.subLabel}>Phone No:</Text>
-                    {isEditing ? (
-                        <TextInput 
-                            style={styles.input} 
-                            value={editPhone} 
-                            onChangeText={setEditPhone} 
-                            keyboardType="phone-pad"
-                        />
-                    ) : (
-                        <Text style={styles.valueText}>{userData.phone_no}</Text>
-                    )}
-
-                    {/* Editable Country */}
-                    <Text style={styles.subLabel}>Country:</Text>
-                    {isEditing ? (
-                        <RNPickerSelect
-                            onValueChange={(value) => setEditCountry(value)}
-                            items={countries}
-                            value={editCountry}
-                            style={pickerStyles}
-                        />
-                    ) : (
-                        <Text style={styles.valueText}>{userData.selectedCountry}</Text>
-                    )}
-                </View>
-
-                <View style={styles.buttonContainer}>
-                    <Button 
-                        title={isEditing ? "Save Changes" : "Edit Profile"} 
-                        onPress={isEditing ? handleSave : () => setIsEditing(true)} 
-                        color={isEditing ? "#4CAF50" : "#2196F3"}
-                    />
-                    
-                    <View style={{ marginTop: 10 }}>
-                        <Button title='Go to Login' onPress={() => router.replace('/login')} />
-                    </View>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+  const handleLogout = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to log out of sflApp?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Logout", 
+          style: "destructive", 
+          onPress: () => {
+            clearUserData();
+            router.replace('/login');
+          } 
+        }
+      ]
     );
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* HEADERBAR */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Profile</Text>
+        <TouchableOpacity 
+          onPress={isEditing ? handleSave : () => setIsEditing(true)}
+          style={styles.editAction}
+        >
+          <Text style={[styles.editBtnText, isEditing && { color: '#3B82F6' }]}>
+            {isEditing ? "Save" : "Edit"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+        
+        {/* PROFILE IDENTIFIER */}
+        <View style={styles.avatarSection}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarLetter}>
+              {userNigeriaData.firstname ? userNigeriaData.firstname[0].toUpperCase() : 'S'}
+            </Text>
+          </View>
+          <Text style={styles.userName}>{userNigeriaData.firstname} {userNigeriaData.lastname}</Text>
+          <View style={styles.verifiedBadge}>
+            <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+            <Text style={styles.verifiedText}>Verified Investor</Text>
+          </View>
+        </View>
+
+        {/* PERSONAL INFORMATION SECTION */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>CONTACT INFORMATION</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoKey}>Email Address</Text>
+              {isEditing ? (
+                <TextInput 
+                  style={styles.inputActive} 
+                  value={editEmail} 
+                  onChangeText={setEditEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              ) : (
+                <Text style={styles.infoVal}>{userNigeriaData.email || 'Not set'}</Text>
+              )}
+            </View>
+            
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
+              <Text style={styles.infoKey}>Phone Number</Text>
+              {isEditing ? (
+                <TextInput 
+                  style={styles.inputActive} 
+                  value={editPhone} 
+                  onChangeText={setEditPhone}
+                  keyboardType="phone-pad"
+                />
+              ) : (
+                <Text style={styles.infoVal}>{userNigeriaData.phone || 'Not set'}</Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* LEGAL IDENTITY SECTION (Read Only) */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>LEGAL IDENTITY</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoKey}>Bank Verification Number (BVN)</Text>
+              <Text style={styles.infoVal}>
+                {userNigeriaData.bvn ? `*******${userNigeriaData.bvn.slice(-4)}` : 'Verified'}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoKey}>Account Type</Text>
+              <Text style={styles.typeBadge}>PRIVATE</Text>
+            </View>
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
+              <Text style={styles.infoKey}>Country</Text>
+              <Text style={styles.infoVal}>Nigeria 🇳🇬</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* DANGER ZONE */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+          <Text style={styles.logoutText}>Sign Out of sflApp</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.versionText}>v1.0.24-stable</Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    heada: {
-        marginTop: 0,
-        marginBottom: 40,
-        backgroundColor: 'red',
-        alignSelf: 'center',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: 'rgba(118, 172, 216, 1)',
-    },
-    greetTextDive: {
-        alignItems: 'center',
-        paddingVertical: 50,
-    },
-    greetText: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    infoBox: {
-        width: '85%',
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 15,
-        elevation: 5,
-    },
-    label: {
-        fontSize: 18,
-        marginBottom: 10,
-        fontWeight: '600',
-    },
-    subLabel: {
-        fontSize: 14,
-        color: '#555',
-        marginTop: 10,
-    },
-    valueText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
-    },
-    input: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#3b82f6',
-        fontSize: 16,
-        paddingVertical: 5,
-        color: 'blue',
-    },
-    buttonContainer: {
-        marginTop: 30,
-        width: '85%',
-    }
+  container: { flex: 1, backgroundColor: '#000' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15 },
+  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  headerTitle: { color: '#FFF', fontSize: 17, fontWeight: '700' },
+  editAction: { width: 60, alignItems: 'flex-end' },
+  editBtnText: { color: '#10B981', fontWeight: '700', fontSize: 15 },
+  scrollBody: { padding: 20 },
+  avatarSection: { alignItems: 'center', marginBottom: 35 },
+  avatarCircle: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#1C1C1E', justifyContent: 'center', alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#334155' },
+  avatarLetter: { color: '#FFF', fontSize: 36, fontWeight: 'bold' },
+  userName: { color: '#FFF', fontSize: 24, fontWeight: '800' },
+  verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, backgroundColor: '#062010', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  verifiedText: { color: '#10B981', fontSize: 12, fontWeight: '700' },
+  section: { marginBottom: 28 },
+  sectionLabel: { color: '#475569', fontSize: 11, fontWeight: '800', marginBottom: 12, marginLeft: 4, letterSpacing: 1 },
+  infoCard: { backgroundColor: '#1C1C1E', borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 18, borderBottomWidth: 1, borderBottomColor: '#2C2C2E' },
+  infoKey: { color: '#8E8E93', fontSize: 14, fontWeight: '500' },
+  infoVal: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  inputActive: { color: '#10B981', fontSize: 14, fontWeight: '600', textAlign: 'right', minWidth: 160, padding: 0 },
+  typeBadge: { color: '#3B82F6', fontSize: 12, fontWeight: '800', backgroundColor: '#1D2D44', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 10, backgroundColor: '#1C1C1E', padding: 18, borderRadius: 20 },
+  logoutText: { color: '#EF4444', fontWeight: '700', fontSize: 15 },
+  versionText: { color: '#334155', textAlign: 'center', fontSize: 11, marginTop: 30, marginBottom: 20 }
 });
-
-const pickerStyles = {
-    inputAndroid: { color: 'blue', fontSize: 16, paddingVertical: 10 },
-    inputIOS: { color: 'blue', fontSize: 16, paddingVertical: 10 }
-};

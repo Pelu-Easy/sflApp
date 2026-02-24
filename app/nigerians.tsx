@@ -8,6 +8,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import Header from './header';
+import useNigeriaSignUp from './bvn_input'; // Import the Zustand store
 
 const BVN_LENGTH = 11;
 
@@ -55,6 +56,7 @@ const BVNInput = ({ onComplete }: { onComplete: (bvn: string) => void }) => {
 };
 
 export default function BvnValidation() {
+  const setUserData = useNigeriaSignUp((state) => state.setUserData); // Hook into Zustand setter
   const defaultDate = new Date();
   defaultDate.setFullYear(defaultDate.getFullYear() - 20);
   
@@ -102,8 +104,20 @@ export default function BvnValidation() {
       }
 
       if (response.ok && (result.success || result.status === "success")) {
+        // Update Global State via Zustand
+        setUserData({
+          bvn: bvnValue,
+          dob: formattedDate,
+          firstname: result.data?.firstName || result.data?.firstname || "",
+          lastname: result.data?.lastName || result.data?.lastname || "",
+          phone: result.data?.phoneNumber || result.data?.phone || "",
+          email: result.data?.email || "",
+          country: "Nigeria"
+        });
+
         Alert.alert("Success", "Identity verified.");
-        // We navigate to bvn_validation directly to complete the profile
+        
+        // Navigate to otp_screen
         router.push({ 
           pathname: '/otp_screen' as any, 
           params: { 

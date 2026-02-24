@@ -8,7 +8,7 @@ import {
   ScrollView, 
   Alert,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { router } from 'expo-router';
@@ -48,32 +48,32 @@ export default function NonNigerian() {
     { label: 'United States', value: 'US' },
   ];
 
-  const handleSignUp = () => {
-    if (!fname || !lname || !email || !selectedCountry) {
-      Alert.alert("Required Fields", "Please fill in all fields marked with * to continue.");
-      return;
-    }
+  // const handleSignUp = () => {
+  //   if (!fname || !lname || !email || !selectedCountry) {
+  //     Alert.alert("Required Fields", "Please fill in all fields marked with * to continue.");
+  //     return;
+  //   }
 
-    // 1. Save to global store (using the object structure from our updated store)
-    setUserData({
-      firstname: fname,
-      lastname: lname,
-      email: email,
-      country: selectedCountry,
-    });
+  //   // 1. Save to global store (using the object structure from our updated store)
+  //   setUserData({
+  //     firstname: fname,
+  //     lastname: lname,
+  //     email: email,
+  //     country: selectedCountry,
+  //   });
 
-    // 2. Routing: lowercase params for perfect handshake with bvn_validation.tsx
-    router.push({
-      pathname: '/bvn_validation' as any,
-      params: { 
-        isNonNigerian: 'true',
-        firstname: fname,
-        lastname: lname,
-        email: email,
-        country: selectedCountry
-      }
-    });
-  };
+  //   // 2. Routing: lowercase params for perfect handshake with bvn_validation.tsx
+  //   router.push({
+  //     pathname: '/bvn_validation' as any,
+  //     params: { 
+  //       isNonNigerian: 'true',
+  //       firstname: fname,
+  //       lastname: lname,
+  //       email: email,
+  //       country: selectedCountry
+  //     }
+  //   });
+  // };
 
   return (
     <SafeAreaProvider>
@@ -134,8 +134,8 @@ export default function NonNigerian() {
               </View>
             </View>
             
-            <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
-              <Text style={styles.buttonText}>Continue to Form</Text>
+            <TouchableOpacity style={styles.signupButton} onPress={ () => router.replace('/login')}>
+              <Text style={styles.buttonText}>Continue to Login</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -168,11 +168,6 @@ const styles = StyleSheet.create({
   backButtonText: { color: '#64748B', fontSize: 15, fontWeight: '600' },
 });
 
-// const pickerSelectStyles = {
-//   inputIOS: { fontSize: 16, paddingVertical: 10, color: '#1E293B', fontWeight: '600' },
-//   inputAndroid: { fontSize: 16, color: '#1E293B', fontWeight: '600', paddingVertical: 8 },
-// };
-// At the very bottom of your non_nigerian.tsx
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,

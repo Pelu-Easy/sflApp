@@ -11,7 +11,7 @@ import Header from './header'; // Import your custom header
 
 export default function LoginScreen() {
   const router = useRouter();
-  
+  const { setUserData } = useNigeriaSignUp();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('');
@@ -44,6 +44,13 @@ export default function LoginScreen() {
       const result = await response.json();
 
       if (response.ok) {
+        // I Update the Dashboard so that (index.tsx) can see the name
+        setUserData({
+          firstname: result.user?.firstname || result.data?.firstname || "SFL",
+          lastname: result.user?.lastname || result.data?.lastname || "User",
+          email: trimmedEmail,
+          // ... any other data the backend sends back
+        });
         // SUCCESS: replace clears the login stack so user can't go "back" to login
         router.replace('/(tabs)'); 
       } else {

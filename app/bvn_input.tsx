@@ -11,6 +11,7 @@ interface NigeriaSignUpState {
     country: string; // <--- ADD THIS LINE
   };
   setUserData: (data: Partial<NigeriaSignUpState['userNigeriaData']>) => void;
+  clearUserData: () => void;
 }
 
 const useNigeriaSignUp = create<NigeriaSignUpState>((set) => ({
@@ -28,6 +29,19 @@ const useNigeriaSignUp = create<NigeriaSignUpState>((set) => ({
     set((state) => ({
       userNigeriaData: { ...state.userNigeriaData, ...data }
     })),
+
+// THIS FUNCTION RESET APP STATE
+  clearUserData: () => set({
+    userNigeriaData: {
+      firstname: "",
+      lastname: "",
+      bvn: "",
+      dob: "",
+      phone: "",
+      email: "",
+      country: "",
+    }
+  }),
 }));
 
 export default useNigeriaSignUp;
