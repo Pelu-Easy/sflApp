@@ -89,7 +89,6 @@ export default function OtpVerification() {
           dob: userData.date_of_birth || "",
           email: userData.email || "",
           phone: (params.phone as string) || "",
-          // If you have a country field in userNigeriaData, you can set it here
           country: "Nigeria" 
         });
 
@@ -99,7 +98,6 @@ export default function OtpVerification() {
         router.push({
           pathname: '/bvn_validation' as any, 
           params: { 
-            // We still pass params for fallback, but the store will take priority
             bvn: userData.bvn,
             firstname: userData.first_name,
             lastname: userData.last_name,

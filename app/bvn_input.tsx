@@ -8,7 +8,7 @@ interface NigeriaSignUpState {
     dob: string;
     phone: string;
     email: string;
-    country: string; // <--- ADD THIS LINE
+    country: string;
   };
   setUserData: (data: Partial<NigeriaSignUpState['userNigeriaData']>) => void;
   clearUserData: () => void;
@@ -22,7 +22,7 @@ const useNigeriaSignUp = create<NigeriaSignUpState>((set) => ({
     dob: "",
     phone: "",
     email: "",
-    country: "", // <--- INITIALIZE THIS
+    country: "",
   },
 
   setUserData: (data) => 
@@ -30,7 +30,7 @@ const useNigeriaSignUp = create<NigeriaSignUpState>((set) => ({
       userNigeriaData: { ...state.userNigeriaData, ...data }
     })),
 
-// THIS FUNCTION RESET APP STATE
+  // THIS FUNCTION RESET APP STATE
   clearUserData: () => set({
     userNigeriaData: {
       firstname: "",

@@ -62,19 +62,14 @@ export default function BvnValidation() {
   }, [params.bvn, params.firstname, storeData]);
 
   const updateField = (field: string, value: string) => {
-    setFormData(prev => {
-        const newData = { ...prev, [field]: value };
-        
-        // --- FIXED: Update global store (Zustand) ---
-        // Note: setUserData in bvn_input.tsx expects Partial<userNigeriaData>
-        // We only sync fields that exist in the store interface
-        const storeFields = ['firstname', 'lastname', 'bvn', 'dob', 'phone', 'email', 'country'];
-        if (storeFields.includes(field)) {
-            setUserData({ [field]: value });
-        }
-        
-        return newData;
-    });
+    // 1. Update local state immediately for the UI
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    // 2. Update global store separately (not inside the local setter)
+    const storeFields = ['firstname', 'lastname', 'bvn', 'dob', 'phone', 'email', 'country'];
+    if (storeFields.includes(field)) {
+      setUserData({ [field]: value });
+    }
   };
 
   const dropdownOptions: { [key: string]: string[] } = {
@@ -97,13 +92,26 @@ export default function BvnValidation() {
     setLoading(true);
     
     try {
+      // Map local state keys to the camelCase keys expected by your backend
+      const apiPayload = {
+        bvn: formData.bvn,
+        title: formData.title,
+        customerType: formData.customerType,
+        gender: formData.gender,
+        firstName: formData.firstname, // Mapped from firstname
+        lastName: formData.lastname,   // Mapped from lastname
+        dob: formData.dob,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+        password: formData.password,
+        userType: isNonNigerian ? 'International' : 'Nigerian'
+      };
+
       const response = await fetch('https://inv-backend-1.onrender.com/api/customers/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          userType: isNonNigerian ? 'International' : 'Nigerian'
-        }),
+        body: JSON.stringify(apiPayload),
       });
 
       if (response.ok) {
@@ -195,7 +203,7 @@ export default function BvnValidation() {
             activeOpacity={1} 
             onPress={() => setActivePicker(null)} 
           />
-          <View style={styles.pickerSheet}>
+          <div style={styles.pickerSheet}>
             <View style={styles.indicator} />
             <Text style={styles.pickerTitle}>
               Select {activePicker === 'gender' ? 'Gender' : 'Account Type'}
@@ -237,7 +245,7 @@ export default function BvnValidation() {
                 );
               })}
             </View>
-          </View>
+          </div>
         </View>
       </Modal>
 
@@ -254,14 +262,14 @@ export default function BvnValidation() {
                 </View>
               ))}
             </ScrollView>
-            <div style={styles.modalButtons}>
+            <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.editBtn} onPress={() => setShowSummary(false)}>
                 <Text style={styles.editBtnText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.confirmBtn} onPress={handleSubmitFinal}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmText}>Confirm & Save</Text>}
               </TouchableOpacity>
-            </div>
+            </View>
           </View>
         </View>
       </Modal>
@@ -296,8 +304,6 @@ export default function BvnValidation() {
     </SafeAreaView>
   );
 }
-
-// ... Styles remain the same as your original ...
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },

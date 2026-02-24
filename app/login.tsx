@@ -29,7 +29,7 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://inv-backend-1.onrender.com/api/auth/v1/login', {
+      const response = await fetch('https://inv-backend-1.onrender.com/api/account/v1/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
