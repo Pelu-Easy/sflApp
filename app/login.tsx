@@ -13,7 +13,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { setUserData } = useNigeriaSignUp();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,16 +44,19 @@ export default function LoginScreen() {
       const result = await response.json();
 
       if (response.ok) {
-        // I Update the Dashboard so that (index.tsx) can see the name
+        // SUCCESS: Save user data AND the token for future API calls
         setUserData({
           firstname: result.user?.firstname || result.data?.firstname || "SFL",
           lastname: result.user?.lastname || result.data?.lastname || "User",
           email: trimmedEmail,
-          // ... any other data the backend sends back
+          // We save the token here so the Dashboard can use it to fetch the latest profile
+          token: result.token || result.data?.token || "", 
         });
-        // SUCCESS: replace clears the login stack so user can't go "back" to login
+        
+        // replace clears the login stack so user can't go "back" to login
         router.replace('/(tabs)'); 
       } else {
+        // Use result.message from backend if available, otherwise generic error
         Alert.alert("Access Denied", result.message || "Invalid email or password.");
       }
     } catch (error) {
@@ -73,7 +76,6 @@ export default function LoginScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
           <View style={styles.logoContainer}>
-            {/* Using your branded Header here */}
             <Header />
             <Text style={styles.bankName}>SFL LTD</Text>
             <Text style={styles.tagline}>Customer Access Portal</Text>

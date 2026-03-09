@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, StatusBar 
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, StatusBar, RefreshControl 
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -8,8 +8,26 @@ import useNigeriaSignUp from '../bvn_input';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { userNigeriaData } = useNigeriaSignUp();
+  const { userNigeriaData, fetchUserProfile } = useNigeriaSignUp();
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // 1. AUTO-FETCH LOGIC
+  // This runs when the dashboard opens and whenever the token changes
+  useEffect(() => {
+    if (userNigeriaData.token) {
+      fetchUserProfile(userNigeriaData.token);
+    }
+  }, [userNigeriaData.token, fetchUserProfile]);
+
+  // 2. REFRESH LOGIC
+  const onRefresh = async () => {
+    setRefreshing(true);
+    if (userNigeriaData.token) {
+      await fetchUserProfile(userNigeriaData.token);
+    }
+    setRefreshing(false);
+  };
 
   // User Branding Logic
   const firstName = userNigeriaData.firstname || "SFL";
@@ -44,7 +62,13 @@ export default function Dashboard() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollBody}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10B981" />
+        }
+      >
         
         {/* TOTAL WEALTH CARD */}
         <View style={styles.wealthCard}>
@@ -133,8 +157,9 @@ export default function Dashboard() {
   );
 }
 
+// ... styles remain the same as previous index.tsx ...
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' }, // Darker navy blue for premium feel
+  container: { flex: 1, backgroundColor: '#0F172A' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 10 },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#1E293B', justifyContent: 'center', alignItems: 'center', marginRight: 12, borderWidth: 1, borderColor: '#334155' },
