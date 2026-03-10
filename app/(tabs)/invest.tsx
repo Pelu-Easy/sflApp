@@ -1,93 +1,152 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView 
+  View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Dimensions 
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
-export default function InvestScreen() {
-  const [activeFilter, setActiveFilter] = useState('All');
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.85; // Cards will take up 85% of screen width
 
-  const assets = [
-    { id: 1, title: 'US Stocks', sub: 'Buy U.S companies.', icon: '🇺🇸', type: 'USD' },
-    { id: 2, title: 'NG Stocks', sub: 'Buy local companies.', icon: '🇳🇬', type: 'Naira' },
-    { id: 3, title: 'Treasury Bills', sub: 'Buy government bills.', icon: '📜', type: 'Naira' },
-    { id: 4, title: 'Naira Savings', sub: 'Earn up to 16% per annum.', icon: '🔒', type: 'Naira', tag: 'New' },
-  ];
+// DUMMY DATA - Scalable structure
+const DUMMY_PRODUCTS = [
+  {
+    id: 'p1',
+    title: 'SFL Fixed Income',
+    roi: '12% - 15%',
+    duration: '6-12 Months',
+    risk: 'Low',
+    minAmount: '50,000',
+    icon: 'safe-square-outline',
+    theme: '#10B981' // Green theme
+  },
+  {
+    id: 'p2',
+    title: 'Real Estate Portfolio',
+    roi: '20% - 25%',
+    duration: '24 Months',
+    risk: 'Medium',
+    minAmount: '250,000',
+    icon: 'home-outline',
+    theme: '#6366F1' // Indigo theme
+  },
+  {
+    id: 'p3',
+    title: 'Agriculture Fund',
+    roi: '30%+',
+    duration: '9 Months',
+    risk: 'High',
+    minAmount: '100,000',
+    icon: 'leaf-outline',
+    theme: '#F59E0B' // Amber theme
+  },
+];
+
+export default function InvestTab() {
+  const router = useRouter();
+
+  const renderProductCard = ({ item }: any) => (
+    <TouchableOpacity 
+      style={styles.card}
+      activeOpacity={0.9}
+      onPress={() => router.push(`/wealth/product_detail?id=${item.id}` as any)}
+    >
+      <View style={styles.cardTop}>
+        <View style={[styles.iconBox, { backgroundColor: `${item.theme}20` }]}>
+          <MaterialCommunityIcons name={item.icon} size={28} color={item.theme} />
+        </View>
+        <View style={[styles.riskBadge, { borderColor: item.theme }]}>
+          <Text style={[styles.riskText, { color: item.theme }]}>{item.risk} Risk</Text>
+        </View>
+      </View>
+
+      <Text style={styles.cardTitle}>{item.title}</Text>
+      
+      <View style={styles.statGrid}>
+        <View style={styles.statItem}>
+          <Text style={styles.statLabel}>Expected ROI</Text>
+          <Text style={styles.statValue}>{item.roi} <Text style={styles.pAm}>p.a</Text></Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statLabel}>Duration</Text>
+          <Text style={styles.statValue}>{item.duration}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.minLabel}>Min. Investment: <Text style={styles.minVal}>₦{item.minAmount}</Text></Text>
+        <Ionicons name="arrow-forward-circle" size={32} color={item.theme} />
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.headerTitle}>Assets</Text>
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
-        {/* FILTER CHIPS */}
-        <View style={styles.filterRow}>
-          {['All', 'USD only', 'Naira only'].map((filter) => (
-            <TouchableOpacity 
-              key={filter} 
-              onPress={() => setActiveFilter(filter)}
-              style={[styles.chip, activeFilter === filter && styles.activeChip]}
-            >
-              <Text style={[styles.chipText, activeFilter === filter && styles.activeChipText]}>
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Investment Plans</Text>
+        <Text style={styles.headerSub}>Explore curated plans to grow your wealth</Text>
+      </View>
 
-        {/* PROMO CARD */}
-        <View style={styles.promoCard}>
-          <View style={styles.promoTextContent}>
-            <Text style={styles.promoTitle}>Personalised investing?</Text>
-            <Text style={styles.promoSub}>Set up your account to work for you.</Text>
-            <TouchableOpacity style={styles.getStarted}>
-              <Text style={styles.getStartedText}>Get Started  ›</Text>
-            </TouchableOpacity>
+      <View>
+        <FlatList
+          data={DUMMY_PRODUCTS}
+          renderItem={renderProductCard}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH + 20} // Snap effect for smooth scrolling
+          decelerationRate="fast"
+          contentContainerStyle={styles.listPadding}
+        />
+      </View>
+
+      {/* ADDITIONAL SECTIONS CAN GO HERE (e.g., My Portfolio) */}
+      <View style={styles.portfolioTeaser}>
+          <Text style={styles.teaserTitle}>Why invest with SFL?</Text>
+          <View style={styles.benefitRow}>
+              <Ionicons name="shield-checkmark" size={20} color="#10B981" />
+              <Text style={styles.benefitText}>Fully insured & regulated assets</Text>
           </View>
-          <View style={styles.promoImagePlaceholder}>
-             <Ionicons name="rocket" size={60} color="#10B981" />
-          </View>
-        </View>
-
-        <Text style={styles.sectionTitle}>All Assets Offerings</Text>
-
-        {/* ASSET GRID */}
-        <View style={styles.grid}>
-          {assets.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.gridItem}>
-              {item.tag && <View style={styles.newTag}><Text style={styles.newTagText}>{item.tag}</Text></View>}
-              <Text style={styles.gridIcon}>{item.icon}</Text>
-              <Text style={styles.gridTitle}>{item.title}</Text>
-              <Text style={styles.gridSub}>{item.sub}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  headerTitle: { color: '#FFF', fontSize: 18, fontWeight: '700', textAlign: 'center', marginVertical: 15 },
-  scrollBody: { paddingHorizontal: 20 },
-  filterRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
-  chip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: '#062010' },
-  activeChip: { backgroundColor: '#E2E8F0' },
-  chipText: { color: '#10B981', fontWeight: '600', fontSize: 13 },
-  activeChipText: { color: '#000' },
-  promoCard: { backgroundColor: '#043927', borderRadius: 20, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 25 },
-  promoTextContent: { flex: 1 },
-  promoTitle: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  promoSub: { color: '#A7F3D0', fontSize: 13, marginVertical: 8, lineHeight: 18 },
-  getStarted: { marginTop: 5 },
-  getStartedText: { color: '#D1FAE5', fontWeight: '800', fontSize: 14 },
-  promoImagePlaceholder: { marginLeft: 10 },
-  sectionTitle: { color: '#FFF', fontSize: 16, fontWeight: '700', marginBottom: 15 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  gridItem: { width: '48%', backgroundColor: '#1C1C1E', borderRadius: 24, padding: 20, marginBottom: 15, height: 160 },
-  gridIcon: { fontSize: 30, marginBottom: 15 },
-  gridTitle: { color: '#FFF', fontWeight: '700', fontSize: 15, marginBottom: 4 },
-  gridSub: { color: '#8E8E93', fontSize: 12, lineHeight: 16 },
-  newTag: { position: 'absolute', top: 12, right: 12, backgroundColor: '#FFF', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  newTagText: { fontSize: 10, fontWeight: '800', color: '#000' }
+  container: { flex: 1, backgroundColor: '#0F172A' },
+  header: { padding: 25 },
+  headerTitle: { color: '#FFF', fontSize: 26, fontWeight: '800' },
+  headerSub: { color: '#94A3B8', fontSize: 14, marginTop: 5 },
+  listPadding: { paddingLeft: 25, paddingRight: 25, paddingVertical: 10 },
+  card: { 
+    backgroundColor: '#1E293B', 
+    width: CARD_WIDTH, 
+    borderRadius: 30, 
+    padding: 25, 
+    marginRight: 20,
+    borderWidth: 1, 
+    borderColor: '#334155',
+    elevation: 5, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  iconBox: { width: 56, height: 56, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
+  riskBadge: { borderWidth: 1, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10 },
+  riskText: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
+  cardTitle: { color: '#FFF', fontSize: 20, fontWeight: '700', marginBottom: 25 },
+  statGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
+  statItem: { flex: 1 },
+  statLabel: { color: '#64748B', fontSize: 12, marginBottom: 5 },
+  statValue: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  pAm: { fontSize: 10, color: '#94A3B8' },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#334155', paddingTop: 15 },
+  minLabel: { color: '#94A3B8', fontSize: 13 },
+  minVal: { color: '#FFF', fontWeight: '600' },
+  portfolioTeaser: { margin: 25, padding: 20, backgroundColor: '#1E293B60', borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, borderColor: '#334155' },
+  teaserTitle: { color: '#FFF', fontWeight: '700', marginBottom: 10 },
+  benefitRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  benefitText: { color: '#94A3B8', fontSize: 13 }
 });
