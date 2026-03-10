@@ -203,7 +203,7 @@ export default function BvnValidation() {
             activeOpacity={1} 
             onPress={() => setActivePicker(null)} 
           />
-          <div style={styles.pickerSheet}>
+          <View style={styles.pickerSheet}>
             <View style={styles.indicator} />
             <Text style={styles.pickerTitle}>
               Select {activePicker === 'gender' ? 'Gender' : 'Account Type'}
@@ -245,7 +245,7 @@ export default function BvnValidation() {
                 );
               })}
             </View>
-          </div>
+          </View>
         </View>
       </Modal>
 

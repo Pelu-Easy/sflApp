@@ -4,7 +4,8 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import useNigeriaSignUp from '../bvn_input'; 
+import useNigeriaSignUp from '../bvn_input';
+//import FundingPage from '../wealth/funding'; 
 
 export default function Dashboard() {
   const router = useRouter();
@@ -87,13 +88,16 @@ export default function Dashboard() {
           <View style={styles.actionRow}>
             <TouchableOpacity 
               style={styles.addMoneyBtn}
-              onPress={() => router.push('/deposit' as any)}
+              onPress={() => router.push('/wealth/funding' as any)}
             >
               <Ionicons name="add" size={20} color="#FFF" />
               <Text style={styles.btnText}>Deposit</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.withdrawBtn}>
+            <TouchableOpacity 
+              style={styles.withdrawBtn}
+              onPress={() => router.push('/wealth/withdrawal' as any)}
+            >
               <Ionicons name="arrow-up" size={20} color="#FFF" />
               <Text style={styles.btnText}>Withdraw</Text>
             </TouchableOpacity>
@@ -121,8 +125,8 @@ export default function Dashboard() {
 
         {/* PORTFOLIO SECTION */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Portfolio</Text>
-          <TouchableOpacity>
+          <Text style={styles.sectionTitle}>My Investment Plan</Text>
+          <TouchableOpacity onPress={() => router.push('/wealth/transactions' as any)}>
             <Text style={styles.sectionAction}>See All</Text>
           </TouchableOpacity>
         </View>
@@ -132,7 +136,7 @@ export default function Dashboard() {
             <MaterialCommunityIcons name="briefcase-variant" size={22} color="#FFF" />
           </View>
           <View style={styles.assetText}>
-            <Text style={styles.assetTitle}>Investment Portfolio</Text>
+            <Text style={styles.assetTitle}>Products Plan</Text>
             <Text style={styles.assetSub}>You have no active investments</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color="#334155" />
@@ -157,7 +161,6 @@ export default function Dashboard() {
   );
 }
 
-// ... styles remain the same as previous index.tsx ...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F172A' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 10 },
